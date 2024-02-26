@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "138116251844",
+    "project_id": "sharchat-4d1af",
+    "storage_bucket": "sharchat-4d1af.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138116251844:android:1c9ef5e916de1ed1d18991",
+        "android_client_info": {
+          "package_name": "com.example.shar_chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBANS26zR053YZQw-uMtM_ulRhWfeVvPTw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
