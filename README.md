@@ -1,4 +1,4 @@
-# shar_chat
+# SharChat
 
 A new Flutter project.
 

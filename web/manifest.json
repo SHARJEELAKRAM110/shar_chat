@@ -1,6 +1,6 @@
 {
-    "name": "shar_chat",
-    "short_name": "shar_chat",
+    "name": "SharChat",
+    "short_name": "SharChat",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

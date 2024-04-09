@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_navigation/get_navigation.dart';
-import 'package:shar_chat/components/chat_bubble.dart';
-import 'package:shar_chat/components/my_text_field.dart';
-import 'package:shar_chat/services/Chat/chat_services.dart';
+import 'package:SharChat/components/chat_bubble.dart';
+import 'package:SharChat/components/my_text_field.dart';
+import 'package:SharChat/services/Chat/chat_services.dart';
 
 class ChatPage extends StatefulWidget {
   final String receviverUserEmail;
@@ -40,54 +40,88 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
+        centerTitle: true,
         leading: IconButton(
           onPressed: () {
             Get.back();
           },
           icon: Icon(
             Icons.arrow_back_ios,
-            color: Colors.white,
+            color: Colors.white,size: 20,
           ),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.black,
+        elevation: 0,
         title: Text(
           widget.receviverUserName,
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: TextStyle(color: Colors.white, fontSize: 22,fontWeight: FontWeight.w600),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(child: StreamBuilder(
-            stream: _chatServices.getMessages(widget.receviverUserID,_firebaseAuth.currentUser!.uid),
-            builder: ( context,snapshot) {
-              if(snapshot.hasError){
-                return Text("Error");
-              }
-              if(snapshot.connectionState==ConnectionState.waiting){
-                return Text("Loading...");
-              }
-              return ListView(
-                children: snapshot.data!.docs.map((document) => _buildMessageItem(document)).toList(),
-              );
-            },
-          )),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0),
-            child: Row(
-              children: [
-                Expanded(
-                    child: MyTextField(
-                  controller: _messageController,
-                  hintText: 'Enter Message',
-                  obscureText: false,
-                )),
-                //Sand Buton
-                IconButton(onPressed: sandMessage, icon: Icon(Icons.arrow_upward,size: 40,))
-              ],
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Column(
+          children: [
+            Expanded(child: StreamBuilder(
+              stream: _chatServices.getMessages(widget.receviverUserID,_firebaseAuth.currentUser!.uid),
+              builder: ( context,snapshot) {
+                if(snapshot.hasError){
+                  return Text("Error");
+                }
+                if(snapshot.connectionState==ConnectionState.waiting){
+                  return Text("Loading...");
+                }
+                return ListView(
+                  children: snapshot.data!.docs.map((document) => _buildMessageItem(document)).toList(),
+                );
+              },
+            )),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: TextField(
+                                keyboardType: TextInputType.multiline,
+
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 12), // Adjust the right padding as needed
+
+                                  hintText: 'Type Something...',
+                      border: InputBorder.none
+                                ),
+                            controller: _messageController,
+                            obscureText: false,
+                          )
+                          ),
+                          //Sand Buton
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: MaterialButton(onPressed: sandMessage,
+                        shape: CircleBorder(),
+                        color: Colors.yellowAccent,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 12.0),
+                          child: Icon(Icons.send,size: 25,),
+                        )),
+                  ),
+
+                ],
+              ),
             ),
-          )
-        ],
+
+          ],
+        ),
       ),
     );
   }
@@ -95,6 +129,16 @@ class _ChatPageState extends State<ChatPage> {
     Map<String, dynamic>data=document.data() as Map<String ,dynamic>;
     //allign the messages
     var alignment=(data["sanderId"]==_firebaseAuth.currentUser!.uid)?Alignment.centerRight:Alignment.centerLeft;
+    // Convert the timestamp to DateTime
+    DateTime messageTime = (data['timestamp'] as Timestamp).toDate();
+    // Format the time to display
+    String formattedTime =
+        "${messageTime.hour}:${messageTime.minute}"; // You can customize the format as needed
+    // Define the color based on the sender
+    Color bubbleColor =
+    (data["sanderId"] == _firebaseAuth.currentUser!.uid)
+        ? Colors.blue
+        : Colors.white24;
     return Container(
       alignment: alignment,
       child: Padding(
@@ -103,8 +147,15 @@ class _ChatPageState extends State<ChatPage> {
           crossAxisAlignment: (data["sanderId"]==_firebaseAuth.currentUser!.uid)?CrossAxisAlignment.end:CrossAxisAlignment.start,
           mainAxisAlignment: (data["sanderId"]==_firebaseAuth.currentUser!.uid)?MainAxisAlignment.end:MainAxisAlignment.start,
           children: [
+            Text(
+              formattedTime, // Display the formatted time
+              style: TextStyle(
+                color: Colors.grey, // You can customize the color
+                fontSize: 12, // You can customize the font size
+              ),
+            ),
             // Text(data["sanderEmail"]),
-            ChatBubble(message: data["message"]),
+            ChatBubble(message: data["message"], color: bubbleColor,),
           ],
         ),
       ),

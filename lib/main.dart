@@ -1,11 +1,12 @@
 
+import 'package:SharChat/screens/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:provider/provider.dart';
 
-import 'package:shar_chat/services/auth/auth_gate.dart';
-import 'package:shar_chat/services/auth/auth_services.dart';
+import 'package:SharChat/services/auth/auth_gate.dart';
+import 'package:SharChat/services/auth/auth_services.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  GetMaterialApp(
+      routes: {
+        '/homepage': (context) => HomePagee(), // Replace HomePage() with your actual homepage widget
+      },
      debugShowCheckedModeBanner: false,
       home: AuthGate(),
     );

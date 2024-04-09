@@ -1,4 +1,4 @@
-package com.example.shar_chat
+package com.example.SharChat
 
 import io.flutter.embedding.android.FlutterActivity
 

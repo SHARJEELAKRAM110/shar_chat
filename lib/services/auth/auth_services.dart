@@ -1,9 +1,12 @@
 
 
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
 import 'package:flutter/cupertino.dart';
-import 'package:shar_chat/Utils/funcations.dart';
 
 
 class AuthServices extends ChangeNotifier{
@@ -13,6 +16,8 @@ class AuthServices extends ChangeNotifier{
 
   // instance of Auth
 final FirebaseFirestore _firestore=FirebaseFirestore.instance;
+
+
 
   //Sign user in
   Future signInWithEmailAndPassword(
@@ -64,8 +69,45 @@ final FirebaseFirestore _firestore=FirebaseFirestore.instance;
   Future<void>signOut()async{
     return await FirebaseAuth.instance.signOut();
   }
+// Upload image to Firebase Storage
+  Future<String> uploadImage(String imagePath, String uid) async {
+    try {
+      // Get a reference to the storage service, using the default Firebase App
+      firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child('user_images')
+          .child(uid)
+          .child('profile_image.jpg');
+
+      // Upload the file to Firebase Storage
+      await ref.putFile(File(imagePath));
+
+      // Get the download URL
+      String imageUrl = await ref.getDownloadURL();
+
+      // Update the user document with the image URL
+      await _firestore.collection("users").doc(uid).update({
+        "profileImageUrl": imageUrl,
+      });
+
+      return imageUrl;
+    } catch (e) {
+      print(e.toString());
+      return '';
+    }
+  }
 
 
+// Retrieve image URL from Firestore
+  Future<String?> _getUserProfileImageURL(String uid) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+      return (userDoc.data() as Map<String, dynamic>?)?['profileImageUrl'];
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
 }
 
 

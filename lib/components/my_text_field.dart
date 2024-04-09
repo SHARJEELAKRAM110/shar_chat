@@ -5,17 +5,18 @@ class MyTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final IconData? icon; // Optional icon
+  final TextInputType? textInputType;
   final VoidCallback? onIconTap; // Callback for icon tap
   final ValueChanged<String>? onChanged; // Optional onChanged callback
   final String? Function(String?)? validator; // Optional validator function
 
 
-  const MyTextField({super.key, required this.controller, required this.hintText, required this.obscureText, this.icon, this.onIconTap, this.onChanged, this.validator});
+  const MyTextField({super.key, required this.controller, required this.hintText, required this.obscureText, this.icon, this.onIconTap, this.onChanged, this.validator, this.textInputType});
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-
+keyboardType:textInputType,
       onChanged: onChanged,
       controller: controller,
       obscureText: obscureText,
