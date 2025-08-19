@@ -1,8 +1,6 @@
-
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/get_utils/get_utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:SharChat/services/auth/auth_services.dart';
@@ -25,8 +23,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final nameController=TextEditingController();
   final passwordController=TextEditingController();
   final confirmPasswordController=TextEditingController();
-  String imagePath = ''; // Define imagePath
-  String uid = ''; // Define uid
   XFile?imageFile;
 bool aShow=true;
 bool emailShow=false;
@@ -55,7 +51,10 @@ if(passwordController.text!=confirmPasswordController.text){
   final authService=Provider.of<AuthServices>(context,listen: false);
 try{
   await authService.signUpWithEmailAndPassword(emailController.text, passwordController.text,nameController.text);
-  await authService.uploadImage(imagePath, uid);
+  if (imageFile != null) {
+    final String currentUid = FirebaseAuth.instance.currentUser!.uid;
+    await authService.uploadImage(imageFile!.path, currentUid);
+  }
 }catch(e){
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
 
