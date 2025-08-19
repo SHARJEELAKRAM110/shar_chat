@@ -22,10 +22,50 @@ class HomePagee extends StatefulWidget {
 
 class _HomePageeState extends State<HomePagee> {
   XFile? _selectedImage;
+  String? _profileImageUrl;
 
   final ChatServices chatService = ChatServices();
   //instance of auth
   final FirebaseAuth _auth=FirebaseAuth.instance;
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileImage();
+  }
+  
+  Future<void> _loadProfileImage() async {
+    final String? uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+    try {
+      final DocumentSnapshot doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+      final String? url = (doc.data() as Map<String, dynamic>?)?['profileImageUrl'] as String?;
+      if (!mounted) return;
+      setState(() {
+        _profileImageUrl = url;
+      });
+    } catch (_) {}
+  }
+  
+  Future<void> _pickAndUploadProfileImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked == null) return;
+    setState(() {
+      _selectedImage = picked;
+    });
+    final authService = Provider.of<AuthServices>(context, listen: false);
+    final String? uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+    final String url = await authService.uploadImage(picked.path, uid);
+    if (!mounted) return;
+    if (url.isNotEmpty) {
+      setState(() {
+        _profileImageUrl = url;
+        _selectedImage = null; // switch to network image after upload
+      });
+    }
+  }
   void signOut() {
     final authService=Provider.of<AuthServices>(context,listen: false);
     authService.signOut();
@@ -37,23 +77,28 @@ class _HomePageeState extends State<HomePagee> {
       drawer: Drawer(
         child: ListView(
           children: [
-            DrawerHeader(
+            GestureDetector(
+              onTap: _pickAndUploadProfileImage,
+              child: DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.yellowAccent,
               ),
               child: _selectedImage != null
                   ? CircleAvatar(
-                backgroundImage: FileImage(File(_selectedImage!.path)),
-                radius: 50,
-              )
-                  : Text(
-                'Drawer Header',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
+                      backgroundImage: FileImage(File(_selectedImage!.path)),
+                      radius: 50,
+                    )
+                  : (_profileImageUrl != null && _profileImageUrl!.isNotEmpty)
+                      ? CircleAvatar(
+                          backgroundImage: NetworkImage(_profileImageUrl!),
+                          radius: 50,
+                        )
+                      : Icon(
+                          Icons.account_circle,
+                          size: 80,
+                          color: Colors.white,
+                        ),
+            )),
           SizedBox(height: 40,),
             Padding(
               padding: const EdgeInsets.all(8.0),
